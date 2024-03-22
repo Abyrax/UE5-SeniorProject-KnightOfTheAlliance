@@ -35,7 +35,7 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	Tags.Add(FName("MainCharacter"));
 }
 
 // Called every frame

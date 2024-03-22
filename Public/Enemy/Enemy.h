@@ -12,6 +12,7 @@
 class UAnimMontage;
 class UAttributeComponent;
 class UHealthBarComponent;
+class UPawnSensingComponent;
 
 UCLASS()
 class KNIGHTOFALLIANCE_API AEnemy : public ACharacter, public IHitInterface
@@ -23,6 +24,8 @@ public:
 	AEnemy();
 	// Called eframefgdx
 	virtual void Tick(float DeltaTime) override;
+	void CheckPatrolTarget();
+	void CheckCombatTarget();
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
@@ -31,11 +34,16 @@ public:
 
 private:
 
+	//comps
+
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
 
 	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent* HealthBarWidget;
+
+	UPROPERTY(VisibleAnywhere)
+	UPawnSensingComponent* PawnSensing;
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* HitReactMontage;
@@ -52,6 +60,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	double CombatRadius = 500.f;
 
+	UPROPERTY(EditAnywhere)
+	double AttackRadius = 150.f;
+
 	//enemy navigation
 
 	UPROPERTY()
@@ -64,10 +75,24 @@ private:
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
 	TArray<AActor*> PatrolTargets;
 
+	UPROPERTY(EditAnywhere)
+	double PatrolRadius = 200.f;
+
+	FTimerHandle PatrolTimer;
+	void PatrolTimerFinished();
+
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Die();
+	bool InTargetRange(AActor* Target, double Radius);
+	void MoveToTarget(AActor* Target);
+	AActor* ChoosePatrolTarget();
+
+	UFUNCTION()
+	void PawnSeen(APawn* SeenPawn);
 
 	//play montage func
 	void PlayHitReactMontage(const FName& SectionName);
