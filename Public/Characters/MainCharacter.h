@@ -22,9 +22,10 @@ public:
 	AMainCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	//callbacks for inputs
@@ -35,12 +36,11 @@ protected:
 	void EKeyPressed();
 	virtual void Attack() override;
 
-	//play montage func
-	virtual void PlayAttackMontage() override;
-
+	void EquipWeapon(AWeapon* Weapon);
 	virtual void AttackEnd() override;
 	virtual bool CanAttack() override;
 	void PlayEquipMontage(const FName& SectionName);
+	//virtual void Die_Implementation() override;
 	bool CanDisarm();
 	bool CanArm();
 
@@ -52,6 +52,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
+
+	UFUNCTION(BlueprintCallable)
+	void HitReactEnd();
 
 private:
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
