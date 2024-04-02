@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AItem;
 class UAnimMontage;
+class UMainOverlay;
 
 UCLASS()
 class KNIGHTOFALLIANCE_API AMainCharacter : public ABaseCharacter
@@ -22,6 +23,7 @@ public:
 	AMainCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Jump() override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -44,6 +46,8 @@ protected:
 	bool CanDisarm();
 	bool CanArm();
 
+	virtual void Die() override;
+
 	UFUNCTION(BlueprintCallable)
 	void Disarm();
 
@@ -57,6 +61,9 @@ protected:
 	void HitReactEnd();
 
 private:
+	void InitializeMainOverlay();
+	void SetHealthPercentOnHUD();
+
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -73,7 +80,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
 
+	UPROPERTY()
+	UMainOverlay* MainOverlay;
+
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 };

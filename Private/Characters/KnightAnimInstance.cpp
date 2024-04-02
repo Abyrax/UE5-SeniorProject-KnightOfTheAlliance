@@ -26,5 +26,7 @@ void UKnightAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		GroundSpeed = UKismetMathLibrary::VSizeXY(MainCharacterMovement->Velocity);
 		IsFalling = MainCharacterMovement->IsFalling();
 		CharacterState = MainCharacter->GetCharacterState();
+		ActionState = MainCharacter->GetActionState();
+		DeathPose = MainCharacter->GetDeathPose();
 	}
 }

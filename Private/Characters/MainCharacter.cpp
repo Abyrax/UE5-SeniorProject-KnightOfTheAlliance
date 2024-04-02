@@ -11,6 +11,8 @@
 #include "Items/Weapon/Weapon.h"
 #include "Animation/AnimMontage.h"
 #include "Components/BoxComponent.h"
+#include "HUD/MainHUD.h"
+#include "HUD/MainOverlay.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -44,6 +46,25 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Tags.Add(FName("EngageableTarget"));
+
+	InitializeMainOverlay();
+}
+
+void AMainCharacter::InitializeMainOverlay()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController) {
+		AMainHUD* MainHUD = Cast<AMainHUD>(PlayerController->GetHUD());
+		if (MainHUD) {
+			MainOverlay = MainHUD->GetMainOverlay();
+			if (MainOverlay && Attributes) {
+				MainOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
+				MainOverlay->SetStaminaBarPercent(Attributes->GetHealthPercent());
+				MainOverlay->SetGold(0);
+				MainOverlay->SetSouls(0);
+			}
+		}
+	}
 }
 
 void AMainCharacter::Tick(float DeltaTime)
@@ -63,10 +84,25 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(FName("Attack"), IE_Pressed, this, &AMainCharacter::Attack);
 }
 
+void AMainCharacter::Jump()
+{
+	if (ActionState == EActionState::EAS_Unoccupied) {
+		Super::Jump();
+	}
+}
+
 float AMainCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	HandleDamage(DamageAmount);
+	SetHealthPercentOnHUD();
 	return DamageAmount;
+}
+
+void AMainCharacter::SetHealthPercentOnHUD()
+{
+	if (MainOverlay && Attributes) {
+		MainOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
+	}
 }
 
 void AMainCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
@@ -169,6 +205,13 @@ bool AMainCharacter::CanArm()
 {
 	return ActionState == EActionState::EAS_Unoccupied && CharacterState == ECharacterState::ECS_Unequipped
 		&& EquippedWeapon;
+}
+
+void AMainCharacter::Die()
+{
+	Super::Die();
+	ActionState = EActionState::EAS_Dead;
+	DisableMeshCollision();
 }
 
 void AMainCharacter::Disarm()
