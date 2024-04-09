@@ -227,6 +227,19 @@ void AEnemy::Die()
 	SetLifeSpan(DeathLifeSpan);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	SoulSpawn();
+}
+
+void AEnemy::SoulSpawn()
+{
+	UWorld* World = GetWorld();
+	if (World && SoulsClass && Attributes) {
+		//const FVector SpawnLoc = GetActorLocation() + FVector(0.f, 0.f, 75.f);
+		ASouls* SoulsSpawned = World->SpawnActor<ASouls>(SoulsClass, GetActorLocation(), GetActorRotation());
+		if (SoulsSpawned) {
+			SoulsSpawned->SetSouls(Attributes->GetSouls());
+		}		
+	}
 }
 
 bool AEnemy::InTargetRange(AActor* Target, double Radius)

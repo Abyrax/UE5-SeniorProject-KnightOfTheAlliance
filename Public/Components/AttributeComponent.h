@@ -53,10 +53,10 @@ public:
 	float GetHealthPercent();
 	//float GetStaminaPercent();
 	bool IsAlive();
-	//void AddSouls(int32 NumberOfSouls);
-	//void AddGold(int32 AmountOfGold);
-	//FORCEINLINE int32 GetGold() const { return Gold; }
-	//FORCEINLINE int32 GetSouls() const { return Souls; }
+	void AddSouls(int32 NumberOfSouls);
+	void AddGold(int32 NumberOfGold);
+	FORCEINLINE int32 GetGold() const { return Gold; }
+	FORCEINLINE int32 GetSouls() const { return Souls; }
 	//FORCEINLINE float GetDodgeCost() const { return DodgeCost; }
 	//FORCEINLINE float GetStamina() const { return Stamina; }
 };

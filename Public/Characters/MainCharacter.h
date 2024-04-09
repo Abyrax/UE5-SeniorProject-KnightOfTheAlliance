@@ -5,16 +5,18 @@
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
 #include "CharacterTypes.h"
+#include "Interfaces/PickingInterface.h"
 #include "MainCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
 class AItem;
+class ASouls;
 class UAnimMontage;
 class UMainOverlay;
 
 UCLASS()
-class KNIGHTOFALLIANCE_API AMainCharacter : public ABaseCharacter
+class KNIGHTOFALLIANCE_API AMainCharacter : public ABaseCharacter, public IPickingInterface
 {
 	GENERATED_BODY()
 
@@ -26,7 +28,8 @@ public:
 	virtual void Jump() override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-
+	virtual void SetOverlappingItem(AItem* Item) override;
+	virtual void AddSouls(ASouls* Souls) override;
 protected:
 	virtual void BeginPlay() override;
 
@@ -84,7 +87,6 @@ private:
 	UMainOverlay* MainOverlay;
 
 public:
-	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 };

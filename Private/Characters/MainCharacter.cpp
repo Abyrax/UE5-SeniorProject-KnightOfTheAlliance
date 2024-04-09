@@ -13,6 +13,7 @@
 #include "Components/BoxComponent.h"
 #include "HUD/MainHUD.h"
 #include "HUD/MainOverlay.h"
+#include "Items/Souls.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -96,6 +97,19 @@ float AMainCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	HandleDamage(DamageAmount);
 	SetHealthPercentOnHUD();
 	return DamageAmount;
+}
+
+void AMainCharacter::SetOverlappingItem(AItem* Item)
+{
+	OverlappingItem = Item;
+}
+
+void AMainCharacter::AddSouls(ASouls* Souls)
+{
+	if (Attributes && MainOverlay) {
+		Attributes->AddSouls(Souls->GetSouls());
+		MainOverlay->SetSouls(Attributes->GetSouls());
+	}
 }
 
 void AMainCharacter::SetHealthPercentOnHUD()

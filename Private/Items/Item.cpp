@@ -4,10 +4,10 @@
 #include "Items/Item.h"
 #include "Components/SphereComponent.h"
 #include "KnightOfAlliance/DebugMacros.h"
-//#include "Interfaces/PickupInterface.h"
+#include "Interfaces/PickingInterface.h"
 #include "Kismet/GameplayStatics.h"
-#include "Characters/MainCharacter.h"
-//#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 AItem::AItem()
@@ -23,8 +23,8 @@ AItem::AItem()
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere->SetupAttachment(GetRootComponent());
 
-	//EmbersEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Embers"));
-	//EmbersEffect->SetupAttachment(GetRootComponent());
+	ItemEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Embers"));
+	ItemEffect->SetupAttachment(GetRootComponent());
 
 }
 
@@ -48,17 +48,39 @@ float AItem::TransformedCos()
 
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
-	if (MainCharacter) {
-		MainCharacter->SetOverlappingItem(this);
+	IPickingInterface* PickingInterface = Cast<IPickingInterface>(OtherActor);
+	if (PickingInterface) {
+		PickingInterface->SetOverlappingItem(this);
 	}
 }
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
-	if (MainCharacter) {
-		MainCharacter->SetOverlappingItem(nullptr);
+	IPickingInterface* PickingInterface = Cast<IPickingInterface>(OtherActor);
+	if (PickingInterface) {
+		PickingInterface->SetOverlappingItem(nullptr);
+	}
+}
+
+void AItem::PickupEffectSpawn()
+{
+	if (PickEffect) {
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			PickEffect,
+			GetActorLocation()
+		);
+	}
+}
+
+void AItem::PickupSoundSpawn()
+{
+	if (PickupSound) {
+		UGameplayStatics::SpawnSoundAtLocation(
+			this,
+			PickupSound,
+			GetActorLocation()
+		);
 	}
 }
 
