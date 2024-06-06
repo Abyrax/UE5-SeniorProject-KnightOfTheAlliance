@@ -51,8 +51,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		USceneComponent* BoxTraceEnd;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	float Damage = 20.f;
+	
 public:
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Weapon Properties")
+	float Damage = 20.f;
 };

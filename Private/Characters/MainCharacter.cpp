@@ -40,6 +40,9 @@ AMainCharacter::AMainCharacter()
 
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(CameraBoom);
+	
+	linetraceLenght = 350;
+
 }
 
 // Called when the game starts or when spawned
@@ -70,6 +73,10 @@ void AMainCharacter::InitializeMainOverlay()
 
 void AMainCharacter::Tick(float DeltaTime)
 {
+	if (Attributes && MainOverlay) {
+		Attributes->RegenStamina(DeltaTime);
+		MainOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
 }
 
 // Called to bind functionality to input
@@ -83,6 +90,62 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(FName("Jump"), IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(FName("Equip"), IE_Pressed, this, &AMainCharacter::EKeyPressed);
 	PlayerInputComponent->BindAction(FName("Attack"), IE_Pressed, this, &AMainCharacter::Attack);
+	PlayerInputComponent->BindAction(FName("Roll"), IE_Pressed, this, &AMainCharacter::Roll);
+	PlayerInputComponent->BindAction(FName("Dodge"), IE_Pressed, this, &AMainCharacter::Dodge);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AMainCharacter::take);
+}
+
+void AMainCharacter::take()
+{
+
+	//UE_LOG(LogTemp, Warning, TEXT("This is a debug message"));
+
+
+	if (ViewCamera == nullptr) {
+		return;
+
+	}
+
+	FHitResult HitResult;
+	FVector Start = ViewCamera->GetComponentLocation();
+	Start += ViewCamera->GetForwardVector() * 400.f;
+	FVector End = Start + ViewCamera->GetForwardVector() * linetraceLenght;
+	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f);
+	DrawDebugPoint(GetWorld(), End, 20.f, FColor::Red, false, 2.f);
+	DrawDebugPoint(GetWorld(), Start, 20.f, FColor::Blue, false, 2.f);
+	AActor* Actor = HitResult.GetActor();
+
+	//ADoor* Door = Cast<ADoor>(HitResult.GetActor());
+	//AKe* Ke = Cast<AKe>(HitResult.GetActor());
+	//AItem* item = Cast<AItem>(HitResult.GetActor());
+
+	/*if (Ke != nullptr) {
+		Ke->Destroy();
+		HasKey = true;
+	}
+	if (Door != nullptr && HasKey) {
+		Door->OnInteract();
+
+	}
+	if (item != nullptr) {
+		item->enable = !item->enable;
+
+	}*/
+
+	if (Actor != nullptr) {
+		FString ActorName = Actor->GetName();
+		GEngine->AddOnScreenDebugMessage(1, 90.f, FColor::Cyan, FString("Item interacted: ") + ActorName);
+
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(1, 90.f, FColor::Cyan, FString("No actor interaction :="));
+	}
+	
+		
+
+	
+	
 }
 
 void AMainCharacter::Jump()
@@ -197,6 +260,35 @@ void AMainCharacter::Attack()
 	}
 }
 
+void AMainCharacter::Roll()
+{
+	if (ActionState != EActionState::EAS_Unoccupied || !CheckStamina()) return;
+	PlayRollMontage();
+	ActionState = EActionState::EAS_Rolling;
+	if (Attributes && MainOverlay) {
+		Attributes->ConsumeStamina(Attributes->GetRollCost());
+		MainOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+}
+
+void AMainCharacter::Dodge()
+{
+	/*
+	if (ActionState != EActionState::EAS_Unoccupied || !CheckStamina()) return;
+	PlayDodgeMontage();
+	ActionState = EActionState::EAS_Rolling;
+	if (Attributes && MainOverlay) {
+		Attributes->ConsumeStamina(Attributes->GetRollCost());
+		MainOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+	*/
+}
+
+bool AMainCharacter::CheckStamina()
+{
+	return Attributes && Attributes->GetStamina() > Attributes->GetRollCost();
+}
+
 /*void AMainCharacter::Die_Implementation()
 {
 	Super::Die_Implementation();
@@ -274,5 +366,11 @@ void AMainCharacter::EquipWeapon(AWeapon* Weapon)
 
 void AMainCharacter::AttackEnd()
 {
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void AMainCharacter::RollEnd()
+{
+	Super::RollEnd();
 	ActionState = EActionState::EAS_Unoccupied;
 }
