@@ -2,6 +2,7 @@ Senior Project - Knight of the Alliance
 
 Knight of the Alliance is an immersive role-playing game developed on Unreal Engine 5, offering players an enchanting journey through a medieval-themed Bilkent University. Besides realistic animations and unique soundtracks, the gameplay experience is highly interactive and engaging, requiring players to interact with ChatGPT-integrated NPCs to progress.
 
+![poster](https://github.com/user-attachments/assets/fd1c6ba6-f1fd-4e83-8453-d0b9ec046be0)
 ![image](https://github.com/Abyrax/KnightOfTheAlliance/assets/29208395/ff2104ae-0d2e-4bcb-80aa-9f1ae10e6333)
 ![Ekran görüntüsü 2024-05-02 044515](https://github.com/Abyrax/KnightOfTheAlliance/assets/29208395/4181ec6c-8af2-4ae8-a53a-16d9728fef09)
 ![Ekran görüntüsü 2024-05-07 231959](https://github.com/Abyrax/KnightOfTheAlliance/assets/29208395/556bd5a8-59bc-4b4e-b057-22c02b39cbc8)
